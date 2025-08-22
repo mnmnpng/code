@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Komunikasi Mama</title>
+    <!-- Tailwind CSS CDN for easy styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif; /* Menggunakan font Inter yang elegan */
+            background-color: #f0f4f8; /* Latar belakang terang untuk kontras yang baik */
+            color: #1a202c; /* Teks gelap untuk keterbacaan */
+        }
+        .text-shadow-custom {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); /* Sedikit lebih lembut */
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #a0aec0;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #718096;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-start min-h-screen p-4">
+
+    <div class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl p-6 md:p-8 space-y-6">
+
+        <!-- Header -->
+        <h1 class="text-4xl md:text-5xl font-extrabold text-blue-800 text-center mb-6 text-shadow-custom">
+            <span class="block">Aplikasi Komunikasi Mama 🗣️</span>
+            <span class="block text-xl md:text-2xl text-blue-600 font-semibold mt-1">Suara Hati untuk Keluarga</span>
+        </h1>
+
+        <!-- Display Area -->
+        <div id="messageDisplay" class="bg-blue-50 border-2 border-blue-300 rounded-2xl p-6 min-h-[120px] md:min-h-[150px] flex items-center justify-center text-center text-3xl md:text-4xl font-bold text-blue-900 shadow-inner">
+            <span class="italic text-gray-500">Pesan Anda akan muncul di sini...</span>
+        </div>
+
+        <!-- Control Buttons (Hanya tombol Bersihkan) -->
+        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+            <!-- Tombol "Ucapkan" telah dihapus sesuai permintaan -->
+            <button id="clearBtn" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition duration-200 text-2xl md:text-3xl focus:outline-none focus:ring-4 focus:ring-red-300">
+                Bersihkan 🧹
+            </button>
+        </div>
+
+        <!-- Loading Indicator (tidak lagi digunakan untuk fitur ucapan, dapat dihapus atau disembunyikan) -->
+        <div id="loadingIndicator" class="hidden text-center text-blue-700 text-xl font-semibold">
+            <!-- Ini bisa dihapus jika tidak ada fungsi loading lain di masa depan -->
+            Memproses...
+        </div>
+
+        <!-- Scanning Mode Section -->
+        <div class="bg-gray-50 p-6 rounded-2xl shadow-md border border-gray-200 space-y-4">
+            <h2 class="text-2xl md:text-3xl font-bold text-blue-800 text-center">Mode Pindai (Scanning Mode)</h2>
+            <p class="text-gray-600 text-center text-lg">Gunakan mode ini untuk memilih kata/huruf satu per satu dengan satu klik.</p>
+
+            <div id="scanItemDisplay" class="bg-yellow-50 border-2 border-yellow-300 rounded-2xl p-4 min-h-[80px] flex items-center justify-center text-center text-4xl font-extrabold text-yellow-900 shadow-inner">
+                <span class="text-gray-500">Mulai Pindai...</span>
+            </div>
+
+            <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                <button id="toggleScanBtn" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition duration-200 text-2xl md:text-3xl focus:outline-none focus:ring-4 focus:ring-blue-300">
+                    Mulai Pindai ▶️
+                </button>
+                <button id="selectScanBtn" class="flex-1 bg-purple-500 hover:bg-purple-600 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition duration-200 text-2xl md:text-3xl focus:outline-none focus:ring-4 focus:ring-purple-300">
+                    Pilih Ini ✅
+                </button>
+            </div>
+        </div>
+
+        <!-- Direct Select Mode Sections -->
+        <div class="bg-gray-50 p-6 rounded-2xl shadow-md border border-gray-200 space-y-4">
+            <h2 class="text-2xl md:text-3xl font-bold text-blue-800 text-center">Mode Pilihan Langsung</h2>
+            <p class="text-gray-600 text-center text-lg">Klik langsung tombol di bawah untuk membentuk pesan lebih cepat.</p>
+
+            <!-- Quick Phrases -->
+            <div class="space-y-4">
+                <h3 class="text-xl md:text-2xl font-semibold text-gray-800">Frasa Cepat (Kebutuhan & Anggota Tubuh):</h3>
+                <div id="quickPhrases" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                    <!-- Phrases will be inserted here by JS -->
+                </div>
+            </div>
+
+            <!-- Alphabet Board -->
+            <div class="space-y-4">
+                <h3 class="text-xl md:text-2xl font-semibold text-gray-800">Papan Huruf & Angka:</h3>
+                <div id="alphabetBoard" class="grid grid-cols-6 sm:grid-cols-8 lg:grid-cols-10 gap-2">
+                    <!-- Alphabet/Numbers will be inserted here by JS -->
+                </div>
+            </div>
+
+            <!-- Special Characters -->
+            <div class="space-y-4">
+                <h3 class="text-xl md:text-2xl font-semibold text-gray-800">Karakter Khusus:</h3>
+                <div id="specialChars" class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-2">
+                    <!-- Special characters will be inserted here by JS -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Core Application Logic ---
+        const messageDisplay = document.getElementById('messageDisplay');
+        const clearBtn = document.getElementById('clearBtn');
+        const loadingIndicator = document.getElementById('loadingIndicator'); // Tetap ada variabelnya, tapi tidak dipakai
+
+        const toggleScanBtn = document.getElementById('toggleScanBtn');
+        const selectScanBtn = document.getElementById('selectScanBtn');
+        const scanItemDisplay = document.getElementById('scanItemDisplay');
+
+        const quickPhrasesDiv = document.getElementById('quickPhrases');
+        const alphabetBoardDiv = document.getElementById('alphabetBoard');
+        const specialCharsDiv = document.getElementById('specialChars');
+
+        let currentMessage = '';
+        let scanIndex = 0;
+        let isScanning = false;
+        let scanInterval = null;
+        const scanSpeedMs = 1200; // Melambatkan kecepatan pindai (dari 700ms menjadi 1200ms)
+
+        // Function to capitalize the first letter of a string
+        function capitalizeFirstLetter(string) {
+            if (!string) return string;
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        // Updated common phrases with new additions at the top and proper capitalization
+        const commonPhrases = [
+            'sikat gigi', 'makan', 'gatal', 'hidung', 'mulut', 'mata', 'wajah', 'kaki', 'tangan', 'kuku', 'rambut', 'air liur', 'telinga', 'semut',
+            'Ya', 'Tidak', 'Halo', 'Terima kasih', 'Tolong', 'Saya haus',
+            'Saya lapar', 'Saya sakit', 'Saya lelah', 'Perlu bantuan', 'Oke', 'Maaf',
+            'Saya ingin duduk', 'Saya ingin tidur', 'Saya ingin minum', 'Saya ingin makan',
+            'Saya ingin ke toilet', 'Saya baik-baik saja', 'Apa kabar?', 'Sangat senang', 'Saya sedih', 'Saya marah', 'Bisakah Anda mendekat?', 'Bisakah Anda menyalakan lampu?', 'Bisakah Anda mematikan lampu?', 'Bisakah Anda menyalakan TV?', 'Bisakah Anda mematikan TV?', 'Bisakah Anda mengganti channel?', 'Bisakah Anda memutarkan musik?', 'Saya ingin membaca', 'Saya ingin tidur siang', 'Punggung saya gatal', 'Leher saya pegal', 'Kepala saya pusing', 'Perut saya sakit', 'Saya kedinginan', 'Saya kepanasan'
+        ].map(phrase => {
+            // Specific capitalization rules for common short words, otherwise capitalize the first letter of the phrase
+            if (['Ya', 'Tidak', 'Oke', 'Maaf', 'Halo'].includes(phrase)) {
+                return phrase; // Keep as is for these specific words
+            }
+            return capitalizeFirstLetter(phrase);
+        });
+
+
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        const numbers = '0123456789'.split('');
+        const specialCharacters = ['.', ',', '!', '?', ' ', '<-', 'Hapus Kata'];
+
+        // Combine all items for scanning mode
+        const allScanItems = [...alphabet, ...numbers, ...commonPhrases, ...specialCharacters];
+
+        function updateMessageDisplay() {
+            messageDisplay.innerHTML = currentMessage === '' ? '<span class="italic text-gray-500">Pesan Anda akan muncul di sini...</span>' : currentMessage;
+        }
+
+        // --- Scanning Mode Logic ---
+        function startScan() {
+            if (isScanning) return;
+            isScanning = true;
+            toggleScanBtn.textContent = 'Hentikan Pindai ⏸️';
+            selectScanBtn.disabled = false; // Enable select button only when scanning
+
+            scanInterval = setInterval(() => {
+                scanItemDisplay.innerHTML = `<span class="transition-colors duration-200">${allScanItems[scanIndex]}</span>`;
+                scanIndex = (scanIndex + 1) % allScanItems.length;
+            }, scanSpeedMs);
+        }
+
+        function stopScan() {
+            if (!isScanning) return;
+            isScanning = false;
+            clearInterval(scanInterval);
+            scanItemDisplay.innerHTML = '<span class="text-gray-500">Mulai Pindai...</span>';
+            toggleScanBtn.textContent = 'Mulai Pindai ▶️';
+            selectScanBtn.disabled = true; // Disable select button when not scanning
+            scanIndex = 0; // Reset scan index
+        }
+
+        function selectScannedItem() {
+            const selectedItem = allScanItems[(scanIndex - 1 + allScanItems.length) % allScanItems.length]; // Get the item that was just highlighted
+            
+            if (selectedItem === '<-') { // Backspace
+                currentMessage = currentMessage.slice(0, -1);
+            } else if (selectedItem === 'Hapus Kata') {
+                currentMessage = currentMessage.trim(); // Remove trailing spaces first
+                const lastSpaceIndex = currentMessage.lastIndexOf(' ');
+                if (lastSpaceIndex !== -1) {
+                    currentMessage = currentMessage.substring(0, lastSpaceIndex);
+                    currentMessage = currentMessage.trim(); // Trim again in case a space was added before the word
+                } else {
+                    currentMessage = ''; // If no space, clear entire message
+                }
+            } else if (selectedItem === ' ') { // Space
+                currentMessage += ' ';
+            }
+            else {
+                currentMessage += selectedItem;
+            }
+            updateMessageDisplay();
+        }
+
+        // --- Direct Select Mode Logic ---
+        function createButton(text, container, isSpecialChar = false) {
+            const button = document.createElement('button');
+            button.textContent = text;
+            button.className = `p-3 rounded-xl font-semibold text-lg md:text-xl transition duration-150 shadow-sm flex items-center justify-center
+                                ${isSpecialChar ? 'bg-orange-200 hover:bg-orange-300 text-orange-800' : 'bg-blue-200 hover:bg-blue-300 text-blue-800'}`;
+            if (text === ' ' || text === '<-' || text === 'Hapus Kata') {
+                 // Make space button wider or distinctive
+                button.classList.add('col-span-2'); // Tailwind class for spanning columns
+                button.classList.remove('p-3');
+                button.classList.add('p-4');
+                if (text === ' ') {
+                    button.classList.remove('bg-blue-200', 'hover:bg-blue-300', 'text-blue-800');
+                    button.classList.add('bg-indigo-300', 'hover:bg-indigo-400', 'text-indigo-900', 'text-2xl');
+                } else if (text === '<-') {
+                    button.classList.remove('bg-orange-200', 'hover:bg-orange-300', 'text-orange-800');
+                    button.classList.add('bg-red-300', 'hover:bg-red-400', 'text-red-900', 'text-2xl');
+                } else if (text === 'Hapus Kata') {
+                    button.classList.remove('bg-orange-200', 'hover:bg-orange-300', 'text-orange-800');
+                    button.classList.add('bg-red-400', 'hover:bg-red-500', 'text-red-900', 'text-2xl');
+                    button.classList.add('col-span-3', 'md:col-span-2'); // Adjust span for "Hapus Kata"
+                }
+            }
+
+
+            button.addEventListener('click', () => {
+                if (text === '<-') { // Backspace logic
+                    currentMessage = currentMessage.slice(0, -1);
+                } else if (text === 'Hapus Kata') {
+                    currentMessage = currentMessage.trim(); // Remove trailing spaces first
+                    const lastSpaceIndex = currentMessage.lastIndexOf(' ');
+                    if (lastSpaceIndex !== -1) {
+                        currentMessage = currentMessage.substring(0, lastSpaceIndex);
+                    } else {
+                        currentMessage = ''; // If no space, clear entire message
+                    }
+                } else {
+                    currentMessage += text;
+                }
+                updateMessageDisplay();
+            });
+            container.appendChild(button);
+        }
+
+        // Initialize buttons
+        window.onload = function() {
+            // Quick Phrases
+            commonPhrases.forEach(phrase => {
+                createButton(phrase, quickPhrasesDiv);
+            });
+
+            // Alphabet and Numbers
+            [...alphabet, ...numbers].forEach(char => {
+                createButton(char, alphabetBoardDiv);
+            });
+
+            // Special Characters
+            specialCharacters.forEach(char => {
+                createButton(char, specialCharsDiv, true);
+            });
+
+            updateMessageDisplay(); // Initial display update
+            stopScan(); // Ensure scan is stopped initially and select button is disabled
+        };
+
+        // --- Event Listeners ---
+        clearBtn.addEventListener('click', () => {
+            currentMessage = '';
+            updateMessageDisplay();
+        });
+
+        toggleScanBtn.addEventListener('click', () => {
+            if (isScanning) {
+                stopScan();
+            } else {
+                startScan();
+            }
+        });
+
+        selectScanBtn.addEventListener('click', selectScannedItem);
+
+    </script>
+</body>
+</html>
